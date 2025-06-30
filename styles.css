@@ -96,6 +96,10 @@ body {
     background: #ff4444;
 }
 
+.weapon-status.limited {
+    background: #ffcc00;
+}
+
 .weapon-status.enabled {
     background: #44ff44;
 }

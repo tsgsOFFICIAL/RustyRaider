@@ -4,11 +4,6 @@
         "name": "Timed Explosive Charge (C4)",
         "damage": 550,
         "ammoType": "Explosive",
-        "materials": {
-            "Explosives": 20,
-            "Cloth": 5,
-            "Tech Trash": 2
-        },
         "sulfurCost": 2200,
         "attackTime": 10
     },
@@ -17,11 +12,6 @@
         "name": "Rocket",
         "damage": 350,
         "ammoType": "Explosive",
-        "materials": {
-            "Explosives": 10,
-            "Gunpowder": 150,
-            "Metal Pipe": 2
-        },
         "sulfurCost": 1400,
         "attackTime": 3
     },
@@ -30,11 +20,6 @@
         "name": "Satchel Charge",
         "damage": 475,
         "ammoType": "Explosive",
-        "materials": {
-            "Beancan Grenade": 4,
-            "Rope": 1,
-            "Small Stash": 1
-        },
         "sulfurCost": 480,
         "attackTime": 15
     },
@@ -43,38 +28,22 @@
         "name": "Beancan Grenade",
         "damage": 60,
         "ammoType": "Explosive",
-        "materials": {
-            "Gunpowder": 60,
-            "Metal Fragments": 20
-        },
         "sulfurCost": 120,
         "attackTime": 6
     },
     {
         "id": "explosive_556",
         "name": "Explosive 5.56 Rifle Ammo",
-        "damage": 35,
+        "damage": 4,
         "ammoType": "Ammo",
-        "materials": {
-            "Metal Fragments": 10,
-            "Gunpowder": 20,
-            "Sulfur": 10,
-            "Explosives": 2
-        },
         "sulfurCost": 25,
-        "attackTime": 0.15
+        "attackTime": 0.48
     },
     {
         "id": "incendiary_rocket",
         "name": "Incendiary Rocket",
         "damage": 300,
         "ammoType": "Explosive",
-        "materials": {
-            "Explosives": 5,
-            "Gunpowder": 150,
-            "Metal Pipe": 2,
-            "Low Grade Fuel": 250
-        },
         "sulfurCost": 1050,
         "attackTime": 3
     },
@@ -83,10 +52,6 @@
         "name": "F1 Grenade",
         "damage": 10,
         "ammoType": "Explosive",
-        "materials": {
-            "Gunpowder": 30,
-            "Metal Fragments": 25
-        },
         "sulfurCost": 60,
         "attackTime": 5
     }

@@ -23,7 +23,7 @@
 					<div v-for="weapon in weapons" :key="weapon.id" class="weapon-item" @click="openWeaponsModal">
 						<img :src="getWeaponIcon(weapon.id)" :alt="weapon.name" />
 						<div class="weapon-quantity">{{ weapon.quantity }}</div>
-						<div class="weapon-status" :class="{ enabled: weapon.enabled }"></div>
+						<div class="weapon-status" :class="{ limited: weapon.quantity > 0, enabled: weapon.quantity === 0 && weapon.enabled }"></div>
 					</div>
 				</div>
 			</div>
@@ -158,10 +158,9 @@
 								</div>
 								<div class="quantity-container">
 									<div class="quantity-label">quantity</div>
-									<input type="number" class="quantity-input" v-model.number="weapon.quantity" min="0" max="999" @input="updateWeaponQuantity(weapon.id, $event.target.value)" />
+									<input type="number" class="quantity-input" v-model.number="weapon.quantity" @input="updateWeaponQuantity(weapon.id, $event.target.value)" />
 								</div>
 							</div>
-							<!-- <button class="remove-weapon">×</button> -->
 						</div>
 					</div>
 				</div>
