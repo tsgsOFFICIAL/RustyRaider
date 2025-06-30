@@ -20,7 +20,7 @@
 			<div class="weapons-bar">
 				<div class="weapons-title">MY WEAPONS</div>
 				<div class="weapons-scroll">
-					<div v-for="weapon in displayWeapons" :key="weapon.id" class="weapon-item" @click="openWeaponsModal">
+					<div v-for="weapon in weapons" :key="weapon.id" class="weapon-item" @click="openWeaponsModal">
 						<img :src="getWeaponIcon(weapon.id)" :alt="weapon.name" />
 						<div class="weapon-quantity">{{ weapon.quantity }}</div>
 						<div class="weapon-status" :class="{ enabled: weapon.enabled }"></div>
@@ -65,7 +65,12 @@
 						<div class="structure-info">
 							<h3>{{ structure.name }} (x{{ structure.quantity }})</h3>
 							<div class="structure-hp">{{ (structure.useSoftside && structure.softsideHealth) ? structure.softsideHealth : structure.health }} HP</div>
+							<div class="quantity-container">
+								<div class="quantity-label">Quantity</div>
+								<input type="number" class="quantity-input" v-model.number="structure.quantity" min="1" @input="updateStructureQuantity(structure.instanceId, $event.target.value)" />
+							</div>
 						</div>
+						<button class="remove-structure" @click="removeStructure(structure.instanceId)">×</button>
 					</div>
 
 					<div v-if="structure.canSoftside" class="softside-toggle-container">
@@ -156,7 +161,7 @@
 									<input type="number" class="quantity-input" v-model.number="weapon.quantity" min="0" max="999" @input="updateWeaponQuantity(weapon.id, $event.target.value)" />
 								</div>
 							</div>
-							<button class="remove-weapon">×</button>
+							<!-- <button class="remove-weapon">×</button> -->
 						</div>
 					</div>
 				</div>

@@ -12,9 +12,6 @@ createApp({
 		};
 	},
 	computed: {
-		displayWeapons: function () {
-			return this.weapons.slice(0, 7);
-		},
 		totalRequirements: function () {
 			var requirements = {};
 			var self = this;
@@ -31,7 +28,7 @@ createApp({
 							if (!requirements[req.weapon]) {
 								requirements[req.weapon] = 0;
 							}
-							requirements[req.weapon] += req.quantity * structure.quantity;
+							requirements[req.weapon] += req.quantity;
 						}
 					});
 				}
@@ -41,30 +38,30 @@ createApp({
 				return { weapon: entry[0], quantity: entry[1] };
 			});
 
-			console.log("totalRequirements computed:", result);
+			// console.log("totalRequirements computed:", result);
 			return result;
 		},
 		totalTime: function () {
 			var self = this;
 			var total = this.selectedStructures.reduce(function (total, structure) {
-				return total + self.getStructureTime(structure) * structure.quantity;
+				return total + self.getStructureTime(structure);
 			}, 0);
-			console.log("totalTime computed:", total);
+			// console.log("totalTime computed:", total);
 			return total;
 		},
 		totalSulfur: function () {
 			var self = this;
 			var total = this.selectedStructures.reduce(function (total, structure) {
-				return total + self.getStructureSulfur(structure) * structure.quantity;
+				return total + self.getStructureSulfur(structure);
 			}, 0);
-			console.log("totalSulfur computed:", total);
+			// console.log("totalSulfur computed:", total);
 			return total;
 		},
 		totalStructureCount: function () {
 			var total = this.selectedStructures.reduce(function (total, structure) {
 				return total + structure.quantity;
 			}, 0);
-			console.log("totalStructureCount computed:", total);
+			// console.log("totalStructureCount computed:", total);
 			return total;
 		}
 	},
@@ -94,8 +91,8 @@ createApp({
 						});
 					});
 					self.structures = responses[1];
-					console.log("Weapons loaded:", self.weapons);
-					console.log("Structures loaded:", self.structures);
+					// console.log("Weapons loaded:", self.weapons);
+					// console.log("Structures loaded:", self.structures);
 				})
 				.catch(function (error) {
 					console.error("Error loading data files:", error);
@@ -110,7 +107,13 @@ createApp({
 				};
 			});
 			localStorage.setItem("rustyraider_weapons", JSON.stringify(weaponData));
-			console.log("Weapons saved to localStorage:", weaponData);
+			// console.log("Weapons saved to localStorage:", weaponData);
+		},
+		getWeaponName: function (weaponId) {
+			var weapon = this.weapons.find(function (w) {
+				return w.id === weaponId;
+			});
+			return weapon ? weapon.name : weaponId;
 		},
 		openWeaponsModal: function () {
 			this.showWeaponsModal = true;
@@ -128,10 +131,10 @@ createApp({
 			if (weapon) {
 				weapon.enabled = !weapon.enabled;
 				if (weapon.quantity > 0) {
-					weapon.quantity = 0; // If quantity is set, set to 0
+					weapon.quantity = 0; // Reset quantity if toggling enabled
 				}
 				this.saveWeaponsToLocalStorage();
-				console.log("Toggled weapon:", weapon.id, "enabled:", weapon.enabled);
+				// console.log("Toggled weapon:", weapon.id, "enabled:", weapon.enabled);
 			}
 		},
 		updateWeaponQuantity: function (weaponId, value) {
@@ -144,7 +147,7 @@ createApp({
 					weapon.enabled = false; // Disable if quantity is set
 				}
 				this.saveWeaponsToLocalStorage();
-				console.log("Updated weapon quantity:", weapon.id, "quantity:", weapon.quantity);
+				// console.log("Updated weapon quantity:", weapon.id, "quantity:", weapon.quantity);
 			}
 		},
 		addStructure: function (structure) {
@@ -153,7 +156,7 @@ createApp({
 			});
 			if (existingStructure) {
 				existingStructure.quantity += 1;
-				console.log("Incremented structure:", structure.id, "quantity:", existingStructure.quantity);
+				// console.log("Incremented structure:", structure.id, "quantity:", existingStructure.quantity);
 			} else {
 				var reactiveStructure = reactive(
 					Object.assign({}, structure, {
@@ -163,7 +166,27 @@ createApp({
 					})
 				);
 				this.selectedStructures.push(reactiveStructure);
-				console.log("Added new structure:", structure.id, "instanceId:", reactiveStructure.instanceId);
+				// console.log("Added new structure:", structure.id, "instanceId:", reactiveStructure.instanceId);
+			}
+		},
+		updateStructureQuantity: function (instanceId, value) {
+			var structure = this.selectedStructures.find(function (s) {
+				return s.instanceId === instanceId;
+			});
+			if (structure) {
+				var newQuantity = parseInt(value) || 1;
+				if (newQuantity < 1) newQuantity = 1;
+				structure.quantity = newQuantity;
+				// console.log("Updated structure quantity:", structure.id, "instanceId:", instanceId, "quantity:", structure.quantity);
+			}
+		},
+		removeStructure: function (instanceId) {
+			var index = this.selectedStructures.findIndex(function (s) {
+				return s.instanceId === instanceId;
+			});
+			if (index !== -1) {
+				var removed = this.selectedStructures.splice(index, 1)[0];
+				// console.log("Removed structure:", removed.id, "instanceId:", instanceId);
 			}
 		},
 		isStructureSelected: function (structureId) {
@@ -174,7 +197,7 @@ createApp({
 		clearAllStructures: function () {
 			this.selectedStructures = [];
 			this.instanceCounter = 0;
-			console.log("Cleared all structures");
+			// console.log("Cleared all structures");
 		},
 		getWeaponIcon: function (weaponId) {
 			return "/assets/" + weaponId + ".webp";
@@ -218,18 +241,20 @@ createApp({
 				var weapon = enabledWeapons[i];
 				if (remainingHealth <= 0) break;
 
-				var maxCount = weapon.quantity > 0 ? weapon.quantity : weapon.id === "c4" ? 8 : weapon.id === "rocket" ? 4 : 63;
+				var maxCount = weapon.quantity > 0 ? weapon.quantity : Number.MAX_SAFE_INTEGER;
 				var weaponCount = Math.min(Math.ceil(remainingHealth / (weapon.damage || 1)), maxCount);
 
 				if (weaponCount > 0) {
 					requirements.push({ weapon: weapon.id, quantity: weaponCount });
 					remainingHealth -= weaponCount * (weapon.damage || 1);
 				}
-
-				if (requirements.length >= 3) break;
 			}
 
-			console.log("getStructureRequirements for", structure.id, "quantity:", structure.quantity, ":", requirements);
+			if (remainingHealth > 0) {
+				console.warn("Insufficient weapons to destroy structure:", structure.id, "remaining health:", remainingHealth);
+			}
+
+			// console.log("getStructureRequirements for", structure.id, "quantity:", structure.quantity, "health:", health, "requirements:", requirements);
 			return requirements;
 		},
 		getOneWeaponRequirements: function (structure) {
@@ -249,25 +274,39 @@ createApp({
 					return bEfficiency - aEfficiency;
 				});
 
-			var selectedWeapon =
-				enabledWeapons[0] ||
-				this.weapons.find(function (w) {
+			if (!enabledWeapons.length) {
+				var c4 = this.weapons.find(function (w) {
 					return w.id === "c4";
 				});
-			if (!selectedWeapon) {
-				console.warn("No enabled weapons or C4 fallback for one-weapon");
+				if (c4) {
+					enabledWeapons = [c4];
+				} else {
+					console.warn("No enabled weapons or C4 fallback available for one-weapon");
+					return [];
+				}
+			}
+
+			var requirements = [];
+			var remainingHealth = health;
+
+			for (var i = 0; i < enabledWeapons.length; i++) {
+				var weapon = enabledWeapons[i];
+				var maxCount = weapon.quantity > 0 ? weapon.quantity : Number.MAX_SAFE_INTEGER;
+				var weaponCount = Math.ceil(remainingHealth / (weapon.damage || 1));
+
+				if (weaponCount <= maxCount) {
+					requirements = [{ weapon: weapon.id, quantity: weaponCount }];
+					remainingHealth = 0;
+					break;
+				}
+			}
+
+			if (remainingHealth > 0) {
+				console.warn("No single weapon available to destroy structure:", structure.id, "health:", health);
 				return [];
 			}
 
-			var maxCount = selectedWeapon.quantity > 0 ? selectedWeapon.quantity : selectedWeapon.id === "c4" ? 8 : selectedWeapon.id === "rocket" ? 4 : 63;
-			var weaponCount = Math.ceil(health / (selectedWeapon.damage || 1));
-			if (weaponCount > maxCount) {
-				console.warn("Required", weaponCount, "of", selectedWeapon.id, "exceeds available quantity", maxCount);
-				return [];
-			}
-
-			var requirements = [{ weapon: selectedWeapon.id, quantity: weaponCount }];
-			console.log("getOneWeaponRequirements for", structure.id, "quantity:", structure.quantity, ":", requirements);
+			// console.log("getOneWeaponRequirements for", structure.id, "quantity:", structure.quantity, "health:", health, "requirements:", requirements);
 			return requirements;
 		},
 		getStructureTime: function (structure) {
@@ -281,7 +320,7 @@ createApp({
 				}.bind(this),
 				0
 			);
-			console.log("getStructureTime for", structure.id, "quantity:", structure.quantity, ":", totalTime);
+			// console.log("getStructureTime for", structure.id, "quantity:", structure.quantity, ":", totalTime);
 			return totalTime;
 		},
 		getOneWeaponTime: function (structure) {
@@ -295,7 +334,7 @@ createApp({
 				}.bind(this),
 				0
 			);
-			console.log("getOneWeaponTime for", structure.id, "quantity:", structure.quantity, ":", totalTime);
+			// console.log("getOneWeaponTime for", structure.id, "quantity:", structure.quantity, ":", totalTime);
 			return totalTime;
 		},
 		getStructureSulfur: function (structure) {
@@ -309,7 +348,7 @@ createApp({
 				}.bind(this),
 				0
 			);
-			console.log("getStructureSulfur for", structure.id, "quantity:", structure.quantity, ":", total);
+			// console.log("getStructureSulfur for", structure.id, "quantity:", structure.quantity, ":", total);
 			return total;
 		},
 		getOneWeaponSulfur: function (structure) {
@@ -323,7 +362,7 @@ createApp({
 				}.bind(this),
 				0
 			);
-			console.log("getOneWeaponSulfur for", structure.id, "quantity:", structure.quantity, ":", total);
+			// console.log("getOneWeaponSulfur for", structure.id, "quantity:", structure.quantity, ":", total);
 			return total;
 		},
 		formatTime: function (seconds) {
