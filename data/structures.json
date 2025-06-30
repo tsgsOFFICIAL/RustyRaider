@@ -1,0 +1,146 @@
+[
+    {
+        "id": "wood_wall",
+        "name": "Wooden Wall",
+        "health": 250,
+        "softsideHealth": 125,
+        "canSoftside": true,
+        "type": "Wall"
+    },
+    {
+        "id": "stone_wall",
+        "name": "Stone Wall",
+        "health": 500,
+        "softsideHealth": 250,
+        "canSoftside": true,
+        "type": "Wall"
+    },
+    {
+        "id": "metal_wall",
+        "name": "Sheet Metal Wall",
+        "health": 1000,
+        "softsideHealth": 250,
+        "canSoftside": true,
+        "type": "Wall"
+    },
+    {
+        "id": "armored_wall",
+        "name": "Armored Wall",
+        "health": 2000,
+        "softsideHealth": 500,
+        "canSoftside": true,
+        "type": "Wall"
+    },
+    {
+        "id": "wood_door",
+        "name": "Wooden Door",
+        "health": 200,
+        "softsideHealth": null,
+        "canSoftside": false,
+        "type": "Door"
+    },
+    {
+        "id": "sheet_metal_door",
+        "name": "Sheet Metal Door",
+        "health": 250,
+        "softsideHealth": null,
+        "canSoftside": false,
+        "type": "Door"
+    },
+    {
+        "id": "armored_door",
+        "name": "Armored Door",
+        "health": 1600,
+        "softsideHealth": null,
+        "canSoftside": false,
+        "type": "Door"
+    },
+    {
+        "id": "garage_door",
+        "name": "Garage Door",
+        "health": 600,
+        "softsideHealth": null,
+        "canSoftside": false,
+        "type": "Door"
+    },
+    {
+        "id": "tool_cupboard",
+        "name": "Tool Cupboard",
+        "health": 1000,
+        "softsideHealth": null,
+        "canSoftside": false,
+        "type": "Deployable"
+    },
+    {
+        "id": "vending_machine",
+        "name": "Vending Machine",
+        "health": 500,
+        "softsideHealth": null,
+        "canSoftside": false,
+        "type": "Deployable"
+    },
+    {
+        "id": "wind_turbine",
+        "name": "Wind Turbine",
+        "health": 500,
+        "softsideHealth": null,
+        "canSoftside": false,
+        "type": "Deployable"
+    },
+    {
+        "id": "reinforced_glass_window",
+        "name": "Reinforced Glass Window",
+        "health": 300,
+        "softsideHealth": null,
+        "canSoftside": false,
+        "type": "Window"
+    },
+    {
+        "id": "reinforced_window",
+        "name": "Reinforced Window",
+        "health": 300,
+        "softsideHealth": null,
+        "canSoftside": false,
+        "type": "Window"
+    },
+    {
+        "id": "metal_shop_front",
+        "name": "Metal Shop Front",
+        "health": 800,
+        "softsideHealth": null,
+        "canSoftside": false,
+        "type": "Deployable"
+    },
+    {
+        "id": "ladder_hatch",
+        "name": "Ladder Hatch",
+        "health": 800,
+        "softsideHealth": null,
+        "canSoftside": false,
+        "type": "Deployable"
+    },
+    {
+        "id": "auto_turret",
+        "name": "Auto Turret",
+        "health": 500,
+        "softsideHealth": null,
+        "canSoftside": false,
+        "type": "Deployable"
+    },
+    {
+        "id": "high_external_stone_wall",
+        "name": "High External Stone Wall",
+        "health": 800,
+        "softsideHealth": null,
+        "canSoftside": false,
+        "type": "Deployable"
+    },
+    {
+        "id": "high_external_stone_gate",
+        "name": "High External Stone Gate",
+        "health": 800,
+        "softsideHealth": null,
+        "canSoftside": false,
+        "type": "Deployable"
+    }
+]

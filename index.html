@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>RustyRaider Calculator</title>
+
+		<!-- PWA Meta Tags -->
+		<meta name="theme-color" content="#1a1a1a" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<link rel="manifest" href="manifest.json" />
+
+		<!-- External CSS -->
+		<link rel="stylesheet" href="styles.css" />
+	</head>
+	<body>
+		<div id="app" class="app">
+			<!-- My Weapons Bar -->
+			<div class="weapons-bar">
+				<div class="weapons-title">MY WEAPONS</div>
+				<div class="weapons-scroll">
+					<div v-for="weapon in displayWeapons" :key="weapon.id" class="weapon-item" @click="openWeaponsModal">
+						<img :src="getWeaponIcon(weapon.id)" :alt="weapon.name" />
+						<div class="weapon-quantity">{{ weapon.quantity }}</div>
+						<div class="weapon-status" :class="{ enabled: weapon.enabled }"></div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Main Content -->
+			<div class="main-content">
+				<div v-if="totalStructureCount === 0">
+					<h1 class="app-title">RUSTYRAIDER</h1>
+					<p class="app-subtitle">Select structures to see total</p>
+				</div>
+			</div>
+
+			<!-- Results Section -->
+			<div class="results-section" :class="{ show: totalStructureCount > 0 }">
+				<div class="results-header">
+					<h2 class="results-title">TOTAL {{ totalStructureCount }} STRUCTURES</h2>
+					<button class="delete-btn" @click="clearAllStructures">🗑️</button>
+				</div>
+
+				<div class="total-requirements">
+					<div class="requirements-left">
+						<div v-for="req in totalRequirements" :key="req.weapon" class="requirement-item">
+							<img :src="getWeaponIcon(req.weapon)" :alt="req.weapon" />
+							<div class="requirement-quantity">{{ req.quantity }}</div>
+						</div>
+					</div>
+					<div class="total-time-cost">
+						<div class="total-time">{{ formatTime(totalTime) }}</div>
+						<div class="total-sulfur">
+							<img src="/assets/sulfur.webp" alt="Sulfur" class="sulfur-icon" />
+							{{ totalSulfur.toLocaleString() }}
+						</div>
+					</div>
+				</div>
+
+				<div v-for="structure in selectedStructures" :key="structure.id + '-' + structure.instanceId" class="structure-result">
+					<div class="structure-header">
+						<img :src="getStructureImage(structure.id)" :alt="structure.name" class="structure-image" />
+						<div class="structure-info">
+							<h3>{{ structure.name }} (x{{ structure.quantity }})</h3>
+							<div class="structure-hp">{{ (structure.useSoftside && structure.softsideHealth) ? structure.softsideHealth : structure.health }} HP</div>
+						</div>
+					</div>
+
+					<div v-if="structure.canSoftside" class="softside-toggle-container">
+						<label class="softside-toggle">
+							<input type="checkbox" v-model="structure.useSoftside" />
+							<span class="softside-label">Softside ({{ structure.softsideHealth }} HP)</span>
+						</label>
+					</div>
+
+					<div class="raid-option">
+						<span class="option-label">Best Possible</span>
+						<div class="option-details">
+							<div class="option-weapons">
+								<template v-for="req in getStructureRequirements(structure)" :key="req.weapon">
+									<img :src="getWeaponIcon(req.weapon)" :alt="req.weapon" />
+									<span>{{ req.quantity }}</span>
+								</template>
+							</div>
+							<span class="option-time">{{ formatTime(getStructureTime(structure)) }}</span>
+							<div class="option-sulfur">
+								<img src="/assets/sulfur.webp" alt="Sulfur" class="sulfur-icon" />
+								{{ getStructureSulfur(structure).toLocaleString() }}
+							</div>
+						</div>
+					</div>
+
+					<div class="raid-option">
+						<span class="option-label">One-weapon</span>
+						<div class="option-details">
+							<div class="option-weapons">
+								<template v-for="req in getOneWeaponRequirements(structure)" :key="req.weapon">
+									<img :src="getWeaponIcon(req.weapon)" :alt="req.weapon" />
+									<span>{{ req.quantity }}</span>
+								</template>
+							</div>
+							<span class="option-time">{{ formatTime(getOneWeaponTime(structure)) }}</span>
+							<div class="option-sulfur">
+								<img src="/assets/sulfur.webp" alt="Sulfur" class="sulfur-icon" />
+								{{ getOneWeaponSulfur(structure).toLocaleString() }}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Add Structures Section -->
+			<div class="add-structures">
+				<div class="add-header">
+					<div class="add-title">
+						<span>➕</span>
+						<span>ADD STRUCTURES</span>
+					</div>
+					<button class="expand-btn" :class="{ expanded: structuresExpanded }" @click="toggleStructures">⌄</button>
+				</div>
+
+				<div class="structures-grid" :class="{ expanded: structuresExpanded }">
+					<div v-for="structure in structures" :key="structure.id" class="structure-card" @click="addStructure(structure)">
+						<img :src="getStructureImage(structure.id)" :alt="structure.name" />
+						<h4>{{ structure.name }}</h4>
+						<button class="add-btn" :class="{ added: isStructureSelected(structure.id) }">{{ isStructureSelected(structure.id) ? '✓' : '+' }}</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Weapons Modal -->
+			<div class="modal" :class="{ show: showWeaponsModal }">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h2 class="modal-title">MY WEAPONS</h2>
+						<button class="close-btn" @click="closeWeaponsModal">×</button>
+					</div>
+
+					<div class="weapon-list">
+						<div v-for="weapon in weapons" :key="weapon.id" class="weapon-row">
+							<img :src="getWeaponIcon(weapon.id)" :alt="weapon.name" />
+							<div class="weapon-details">
+								<div class="weapon-name">{{ weapon.name }}</div>
+							</div>
+							<div class="weapon-controls">
+								<div class="toggle-container">
+									<div class="toggle-label">can craft/use</div>
+									<div class="toggle-switch" :class="{ enabled: weapon.enabled }" @click="toggleWeapon(weapon.id)">
+										<div class="toggle-slider"></div>
+									</div>
+								</div>
+								<div class="quantity-container">
+									<div class="quantity-label">quantity</div>
+									<input type="number" class="quantity-input" v-model.number="weapon.quantity" min="0" max="999" @input="updateWeaponQuantity(weapon.id, $event.target.value)" />
+								</div>
+							</div>
+							<button class="remove-weapon">×</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- External Scripts -->
+		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+		<script src="app.js"></script>
+	</body>
+</html>
